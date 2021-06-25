@@ -1,7 +1,7 @@
 # Helm Operator 설치 가이드
 
 ## 구성 요소 및 버전
-* Helm-operator (docker.io/fluxcd/helm-operator:1.2.0)
+* helm-operator (docker.io/fluxcd/helm-operator:1.2.0)
 
 ## Prerequisites
 
@@ -24,51 +24,72 @@
 
 ## Step 1. Namespace 생성
 * 목적 : `Helm Operator가 설치될 namespace 생성`
-* 생성 순서 : 아래 command로 namespace 생성
+* 아래 command로 namespace 생성
 	```bash
     kubectl create namespace helm-ns
 	```
 
 ## Step 2. CRD 배포
 * 목적 : `HelmRelease CRD 배포`
-* 생성 순서 : 아래 command로 CRD 배포
+* 아래 command로 CRD 배포
 	```bash
     kubectl apply -f crds.yaml
 	```
 
 ## Step 3. RBAC 설정
 * 목적 : `Helm Operator에 필요한 권한 부여`
-* 생성 순서 : 아래 command로 RBAC 설정
+* 아래 command로 RBAC 설정
 	```bash
     kubectl apply -f rbac.yaml
 	```
 
 ## Step 4. Helm Operator 설치
 * 목적 : `Helm Operator 설치`
-* 생성 순서 : 아래 command로 deployment 생성
+* 아래 command로 deployment 생성
 	```bash
     kubectl apply -f deployment.yaml
 	```
-* 생성 순서 : 아래 command로 deployment 생성
 
 ## 설치 확인
 1. [Pod 상태 확인](#Step-1-Pod-상태-확인)
+2. [테스트 CR 생성](#Step-2-테스트-CR-생성)
 
 ## Step 1. Pod 상태 확인
 * 목적 : `Helm Operator 정상 기동 확인`
-* 생성 순서 : 아래 command로 Pod 상태가 running인지 확인
+* 아래 command로 Pod 상태가 running인지 확인
 	```console
 	$ kubectl get pods -n helm-ns
     NAME                               READY   STATUS    RESTARTS   AGE
     helm-operator-79f99c9df5-xpckn     1/1     Running   0          11s
   ```
 
+## Step 2. 테스트 CR 생성
+* 목적 : `HelmRelease CR를 통한 k8s 리소스 배포 테스트`
+  * 샘플 yaml 다운로드
+   ```bash
+    wget https://raw.githubusercontent.com/tmax-cloud/install-helm-operator/5.0/manifest/podinfo.yaml
+    ```
+  * 샘플 HelmRelease CR 생성
+	```bash
+    kubectl apply -f podinfo.yaml
+	```
+  * k8s 리소스 정상 배포 확인
+    ```console
+	  $ kubectl get pods -n helm-ns
+      NAME                               READY   STATUS    RESTARTS   AGE
+      helm-ns-podinfo-575694ddd4-rz2qq   1/1     Running   0          19s
+    ```
+  * 샘플 리소스 제거
+	```bash
+    kubectl delete -f podinfo.yaml
+	```
+
 ## 삭제 가이드
 1. [Helm Operator 리소스 제거](#Step-1-Helm-Operator-리소스-제거)
 
 ## Step 1. Helm Operator 리소스 제거
 * 목적 : `Helm Operator 관련 리소스 제거`
-* 삭제 순서 : 아래 command로 리소스 제거
+* 아래 command로 리소스 제거
 	```bash
     kubectl delete -f deployment.yaml
     kubectl delete -f rbac.yaml
